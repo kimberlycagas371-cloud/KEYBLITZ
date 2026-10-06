@@ -1,0 +1,617 @@
+/* ==========================================================================
+   KeyBlitz · style.css
+   Sections: 1 Tokens · 2 Base · 3 Layout · 4 Glass · 5 Header · 6 Login
+             7 Game · 8 Results · 9 Responsive
+   ========================================================================== */
+
+
+/* 1. DESIGN TOKENS ------------------------------------------------------- */
+
+:root {
+  /* Light theme (default) */
+  --bg: #f3effb;
+  --glass: rgba(255, 255, 255, 0.65);
+  --edge: rgba(120, 100, 180, 0.2);
+  --ink: #2a2540;
+  --mute: #7d7699;
+  --accent: #7c5cff;
+  --accent-2: #ff6fb1;
+  --good: #12a37f;
+  --bad: #e8456b;
+  --editor: #fbf9ff;
+  --blob-1: #c9b8ff;
+  --blob-2: #ffc2e0;
+  --blob-3: #b8e6ff;
+}
+
+/* Dark theme: follows the device unless the user picked a theme manually */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e0b1a;
+    --glass: rgba(32, 26, 56, 0.6);
+    --edge: rgba(170, 150, 255, 0.18);
+    --ink: #ece8ff;
+    --mute: #8f87b5;
+    --accent: #9d85ff;
+    --accent-2: #ff7ab8;
+    --good: #5eead4;
+    --bad: #ff6b8f;
+    --editor: #150f28;
+    --blob-1: #5b3fd1;
+    --blob-2: #c2307a;
+    --blob-3: #1f6fb5;
+  }
+}
+
+/* Dark theme: manual toggle */
+:root[data-theme="dark"] {
+  --bg: #0e0b1a;
+  --glass: rgba(32, 26, 56, 0.6);
+  --edge: rgba(170, 150, 255, 0.18);
+  --ink: #ece8ff;
+  --mute: #8f87b5;
+  --accent: #9d85ff;
+  --accent-2: #ff7ab8;
+  --good: #5eead4;
+  --bad: #ff6b8f;
+  --editor: #150f28;
+  --blob-1: #5b3fd1;
+  --blob-2: #c2307a;
+  --blob-3: #1f6fb5;
+}
+
+/* Reusable values */
+:root {
+  --font-ui: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-code: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --gradient: linear-gradient(90deg, var(--accent), var(--accent-2));
+  --gradient-diag: linear-gradient(135deg, var(--accent), var(--accent-2));
+}
+
+
+/* 2. BASE ---------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+}
+
+body {
+  position: relative;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-ui);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+h1,
+h2 {
+  margin: 0;
+}
+
+button {
+  margin-top: 16px;
+  padding: 13px 24px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--gradient);
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  box-shadow: 0 6px 20px rgba(124, 92, 255, 0.35);
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.45;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--editor) 50%, transparent);
+  color: var(--ink);
+  font-family: var(--font-code);
+  font-size: 16px;
+  backdrop-filter: blur(10px);
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(124, 92, 255, 0.25);
+}
+
+.muted {
+  margin: 8px 0 0;
+  color: var(--mute);
+}
+
+.gradient-text {
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+
+/* ICONS (inline SVG, colored by the surrounding text) */
+
+.ico {
+  width: 1em;
+  height: 1em;
+  flex: none;
+  vertical-align: -0.15em;
+}
+
+.level-btn .ico { width: 15px; height: 15px; }
+.combo .ico { width: 13px; height: 13px; }
+.best-line .ico { width: 14px; height: 14px; margin-right: 5px; color: var(--accent); }
+.rank-title .ico { color: var(--accent-2); }
+
+
+/* 3. LAYOUT -------------------------------------------------------------- */
+
+main {
+  position: relative;
+  z-index: 1;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+}
+
+/* Soft colored blobs behind the glass */
+.blob {
+  position: fixed;
+  z-index: 0;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.blob-1 { top: -90px; left: -80px; width: 340px; height: 340px; background: var(--blob-1); }
+.blob-2 { right: -60px; bottom: -80px; width: 300px; height: 300px; background: var(--blob-2); }
+.blob-3 { top: 45%; left: 55%; width: 240px; height: 240px; background: var(--blob-3); }
+
+
+/* 4. GLASS --------------------------------------------------------------- */
+
+.glass {
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), var(--glass) 55%);
+  box-shadow:
+    0 12px 40px rgba(60, 30, 140, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+  -webkit-backdrop-filter: blur(26px) saturate(170%);
+  backdrop-filter: blur(26px) saturate(170%);
+}
+
+
+/* 5. HEADER -------------------------------------------------------------- */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.brand-logo {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: var(--gradient-diag);
+  box-shadow:
+    0 6px 18px rgba(124, 92, 255, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.brand-logo svg {
+  width: 24px;
+  height: 24px;
+}
+
+.toolbar {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), var(--glass));
+  color: var(--ink);
+  box-shadow:
+    0 6px 18px rgba(60, 30, 140, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+.icon-btn svg {
+  display: block;
+  width: 21px;
+  height: 21px;
+}
+
+.icon-btn:active {
+  transform: scale(0.94);
+}
+
+
+/* 6. LOGIN --------------------------------------------------------------- */
+
+.login-card {
+  max-width: 440px;
+  margin: 28px auto 0;
+  padding: 34px 22px;
+  text-align: center;
+}
+
+.login-card h2 {
+  margin: 8px 0 6px;
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.login-card input {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.login-card button {
+  width: 100%;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 8px;
+  border-radius: 22px;
+  background: var(--gradient-diag);
+  box-shadow:
+    0 10px 28px rgba(124, 92, 255, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.avatar svg {
+  width: 38px;
+  height: 38px;
+}
+
+
+/* 7. GAME ---------------------------------------------------------------- */
+
+.subtitle {
+  margin: 12px 0 18px;
+  color: var(--mute);
+  font-size: 14px;
+}
+
+/* Timer / WPM / accuracy / snippets */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.stat {
+  padding: 12px 6px;
+  text-align: center;
+}
+
+.stat b {
+  display: block;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.stat span {
+  color: var(--mute);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Difficulty pills */
+.levels {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding-top: 12px; /* room for the floating button */
+}
+
+.level-btn {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 99px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), var(--glass));
+  color: var(--ink);
+  font-size: 13px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.level-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Selected difficulty: pops up when clicked, then floats gently */
+.level-btn.active {
+  border-color: transparent;
+  background: var(--gradient);
+  color: #fff;
+  box-shadow: 0 12px 26px rgba(124, 92, 255, 0.5);
+  transform: translateY(-4px) scale(1.06);
+  animation:
+    level-pop 0.4s cubic-bezier(0.3, 1.6, 0.5, 1),
+    level-float 2.6s ease-in-out 0.4s infinite;
+}
+
+.best-line {
+  margin: 0 0 12px;
+  color: var(--mute);
+  font-size: 13px;
+  text-align: center;
+}
+
+.best-line b {
+  color: var(--ink);
+}
+
+/* Time-left bar */
+.progress {
+  height: 8px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--edge);
+}
+
+.progress-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  background: var(--gradient);
+  transition: width 0.25s linear;
+}
+
+/* Editor-style window */
+.window {
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.25s;
+}
+
+.window.flash {
+  box-shadow: 0 0 0 2px var(--good), 0 0 40px rgba(18, 163, 127, 0.45);
+}
+
+.titlebar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.dot-red    { background: #ff5f57; }
+.dot-yellow { background: #febc2e; }
+.dot-green  { background: #28c840; }
+
+.filename {
+  margin-left: 10px;
+  color: var(--mute);
+  font-family: var(--font-code);
+  font-size: 12px;
+}
+
+.combo {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  padding: 4px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--mute);
+  font-size: 12px;
+  font-weight: 700;
+  transition: background 0.2s, color 0.2s;
+}
+
+.combo.active {
+  background: var(--gradient);
+  color: #fff;
+  box-shadow: 0 0 16px rgba(255, 111, 177, 0.5);
+}
+
+.combo.bump {
+  animation: bump 0.15s;
+}
+
+.editor {
+  display: flex;
+  padding: 22px 0;
+  background: color-mix(in srgb, var(--editor) 45%, transparent);
+  font-family: var(--font-code);
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+.gutter {
+  padding: 0 14px 0 18px;
+  color: var(--mute);
+  opacity: 0.6;
+  user-select: none;
+}
+
+.code {
+  flex: 1;
+  min-height: 66px;
+  padding-right: 18px;
+  word-break: break-all;
+}
+
+.code .ch-ok   { color: var(--good); }
+.code .ch-todo { color: var(--mute); }
+.code .ch-bad  { border-radius: 3px; background: rgba(232, 69, 107, 0.18); color: var(--bad); }
+.code .ch-cursor {
+  box-shadow: -2px 0 0 var(--accent);
+  animation: blink 1s steps(1) infinite;
+}
+
+.input-wrap {
+  padding: 14px;
+}
+
+/* Floating combo-milestone label */
+.popup {
+  position: absolute;
+  top: 44%;
+  right: 0;
+  left: 0;
+  z-index: 2;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: 28px;
+  font-weight: 800;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.popup.show {
+  animation: popup 1s ease-out;
+}
+
+
+/* 8. RESULTS ------------------------------------------------------------- */
+
+.result {
+  padding: 32px 20px;
+  text-align: center;
+}
+
+.rank-title {
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.rank-title.new-best {
+  margin-top: 14px;
+}
+
+.big-wpm {
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: 64px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+
+/* ANIMATIONS ------------------------------------------------------------- */
+
+@keyframes blink {
+  50% { box-shadow: -2px 0 0 transparent; }
+}
+
+@keyframes bump {
+  50% { transform: scale(1.18); }
+}
+
+@keyframes level-pop {
+  0%   { transform: translateY(0) scale(1); }
+  50%  { transform: translateY(-14px) scale(1.14); }
+  100% { transform: translateY(-4px) scale(1.06); }
+}
+
+@keyframes level-float {
+  0%, 100% { transform: translateY(-4px) scale(1.06); }
+  50%      { transform: translateY(-8px) scale(1.06); }
+}
+
+@keyframes popup {
+  0%   { opacity: 0; transform: translateY(10px) scale(0.8); }
+  20%  { opacity: 1; transform: translateY(0) scale(1.1); }
+  100% { opacity: 0; transform: translateY(-30px) scale(1); }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  .level-btn.active { animation: none; }
+}
+
+
+/* 9. RESPONSIVE ---------------------------------------------------------- */
+
+@media (max-width: 420px) {
+  .brand { font-size: 22px; }
+  .brand-logo { width: 36px; height: 36px; }
+  .brand-logo svg { width: 20px; height: 20px; }
+  .icon-btn { width: 40px; height: 40px; }
+  .toolbar { gap: 6px; }
+}
